@@ -1,0 +1,47 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:5.7
+    volumes:
+      - db-data:/var/lib/mysql
+      - ./mysql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      MYSQL_ROOT_PASSWORD: no_hiae
+      MYSQL_DATABASE: hiae
+      MYSQL_USER: novo_integrante
+      MYSQL_PASSWORD: no_hiae
+    ports:
+      - "3316:3306"
+
+  backend:
+    build: ./backend
+    ports:
+      - "4000:3000"
+    environment:
+      PORT: 3000
+      URL: localhost
+      PublicPort: 4000
+      PublicURL: localhost
+      DATABASE_URL: mysql://novo_integrante:no_hiae@db:3306/hiae
+      NODE_ENV: development
+    volumes:
+      - ./backend:/app
+    command: npm run prisma:migrate
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3001:3000"
+    environment:
+      REACT_APP_API_URL: http://localhost:4000
+      NODE_ENV: development
+    volumes:
+      - ./frontend/src:/app/src
+    command: npm start
+    depends_on:
+      - backend
+
+volumes:
+  db-data:

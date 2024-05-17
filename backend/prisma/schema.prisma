@@ -1,0 +1,27 @@
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl", "linux-musl-openssl-3.0.x"]
+}
+
+enum WashType {
+  SIMPLE
+  COMPLETE
+}
+
+model Appointment {
+  id         Int       @id @default(autoincrement())
+  license    String    @db.VarChar(10)
+  scheduledAt DateTime
+  endAt       DateTime
+  type       WashType
+  confirmed  Boolean   @default(false)
+  canceled   Boolean   @default(false) 
+
+  @@map("appointments")
+}
+
